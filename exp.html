@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Lab High - Calculateur Expert</title>
+    <style>
+        :root { 
+            --bg: #05070a; --card: #111827; --text: #f8fafc; 
+            --primary: #10b981; --accent: #6366f1; --border: #334155; 
+            --tip: #fbbf24; --danger: #ef4444;
+        }
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            background: var(--bg); color: var(--text); 
+            display: flex; justify-content: center; align-items: flex-start;
+            min-height: 100vh; margin: 0; padding: 20px;
+            user-select: none; -webkit-user-select: none;
+        }
+
+        .card { 
+            background: var(--card); width: 100%; max-width: 550px; 
+            border-radius: 32px; box-shadow: 0 40px 100px rgba(0,0,0,0.8); 
+            border: 1px solid var(--border); overflow: hidden; margin-bottom: 40px;
+        }
+        
+        .header { 
+            background: linear-gradient(135deg, #064e3b 0%, #022c22 100%); 
+            padding: 25px 20px; text-align: center; border-bottom: 2px solid var(--primary); 
+        }
+        .header h2 { margin:0; font-size: 22px; letter-spacing: 3px; font-weight: 900; color: #fff; text-transform: uppercase; }
+        
+        .content { padding: 25px; }
+        .section { margin-bottom: 22px; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; padding-left: 5px; }
+        
+        select, input { 
+            width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 14px; 
+            font-size: 15px; background: #0b0f1a; color: white; outline: none; box-sizing: border-box; 
+            transition: border-color 0.2s;
+        }
+        select:focus, input:focus { border-color: var(--primary); }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        .res-container { 
+            display: flex; flex-direction: column; align-items: center; padding: 25px; 
+            border-radius: 24px; background: linear-gradient(145deg, #1e293b, #0f172a); 
+            border: 2px solid var(--accent); margin: 25px 0;
+        }
+        .big-val { font-size: 48px; font-weight: 900; color: #fff; margin: 5px 0; }
+        
+        .power-scale { width: 100%; height: 6px; background: #1e293b; border-radius: 10px; margin: 12px 0; overflow: hidden; }
+        #powerBar { height: 100%; width: 0%; background: linear-gradient(to right, var(--primary), var(--tip), var(--danger)); transition: 0.5s; }
+
+        .guide-step {
+            background: rgba(30, 41, 59, 0.4);
+            border-left: 3px solid var(--primary);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        .guide-step b { color: var(--text); display: block; margin-bottom: 5px; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+        .guide-step.warning { border-left-color: var(--tip); }
+        .guide-step.info { border-left-color: var(--accent); }
+        .guide-step.recipe { border-left-color: #ec4899; background: rgba(236, 72, 153, 0.1); display: none; }
+        
+        .storage-table { width: 100%; margin-top: 10px; font-size: 12px; border-top: 1px solid var(--border); padding-top: 10px; line-height: 1.6; }
+        .storage-table span { color: var(--primary); font-weight: bold; }
+
+        .footer { text-align: center; margin-top: 15px; font-size: 10px; color: #4b5563; }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+<div class="card">
+    <div class="header">
+        <h2>MASTER LAB HIGH</h2>
+        <div style="font-size: 10px; color: var(--primary); font-weight: 800; margin-top: 5px;">CALCULATEUR & MÉTHODES DE PRÉPARATION</div>
+    </div>
+    
+    <div class="content">
+        <div class="section">
+            <div class="grid">
+                <div class="input-group">
+                    <label>Type de Matière</label>
+                    <select id="matType" onchange="syncTHC()">
+                        <option value="18">Fleurs séchées</option>
+                        <option value="45">Hash</option>
+                        <option value="80">Wax / Concentré</option>
+                        <option value="6">Manucure</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Taux THC (%)</label>
+                    <input type="number" id="thcVal" value="18" step="0.1" oninput="run()">
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="grid">
+                <div class="input-group">
+                    <label>Corps Gras / Solvant</label>
+                    <select id="fatSelect" onchange="run()">
+                        <option value="90">Huile de Coco</option>
+                        <option value="88">Huile d'Olive</option>
+                        <option value="82">Beurre Ghee</option>
+                        <option value="40">Miel</option>
+                        <option value="35">Sirop (Maison)</option>
+                        <option value="35">Crème 35%</option>
+                        <option value="15">Crème 15%</option>
+                        <option value="3">Lait 3.25%</option>
+                        <option value="92">Alcool >90°</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Quantité Solvant (ml/g)</label>
+                    <input type="number" id="liquidQty" value="250" oninput="run()">
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="grid">
+                <div class="input-group">
+                    <label>Cible (mg THC / dose)</label>
+                    <input type="number" id="targetMg" value="10" oninput="run()">
+                </div>
+                <div class="input-group">
+                    <label>Nombre de Doses</label>
+                    <input type="number" id="nbParts" value="12" oninput="run()">
+                </div>
+            </div>
+        </div>
+
+        <div class="res-container">
+            <span style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Masse de concentré à peser</span>
+            <span class="big-val" id="resGrammes">0 g</span>
+            <div class="power-scale"><div id="powerBar"></div></div>
+            <div id="ratioText" style="font-size: 11px; color: var(--primary); font-weight: 600;"></div>
+        </div>
+
+        <div id="process">
+            <div class="guide-step recipe" id="syrupRecipe">
+                <b>🍭 Recette du Sirop Simple (Base)</b>
+                <span id="syrupText">-</span>
+            </div>
+
+            <div class="guide-step warning">
+                <b>1. Décarbonisation (Activation)</b>
+                <span id="decarboText">-</span>
+            </div>
+
+            <div class="guide-step">
+                <b>2. Infusion (Extraction)</b>
+                <span id="infusionText">-</span>
+            </div>
+
+            <div class="guide-step info">
+                <b>3. Filtration & Conservation</b>
+                <span id="storageText">-</span>
+                <div class="storage-table" id="storageTime"></div>
+            </div>
+        </div>
+
+        <div class="footer">PRÉCISION DE CALCUL SCIENTIFIQUE • TOUS DROITS RÉSERVÉS</div>
+    </div>
+</div>
+
+<script>
+document.onkeydown = function(e) { if(e.keyCode == 123) return false; }
+
+const decarbData = {
+    "18": "Fleurs : 110°C / 45 min. Couvrir d'alu pour piéger les principes actifs.",
+    "45": "Hash : 115°C / 35 min. Effriter finement sur plaque.",
+    "80": "Wax/Wax/Shatter : 120°C. Chauffer dans un récipient en silicone ou pyrex stable. Arrêter dès que la formation de bulles cesse totalement.",
+    "6": "Manucure : 105°C / 55 min. Température basse pour protéger la matière fine."
+};
+
+function syncTHC() {
+    document.getElementById('thcVal').value = document.getElementById('matType').value;
+    run();
+}
+
+function run() {
+    const typeVal = document.getElementById('matType').value;
+    const thc = parseFloat(document.getElementById('thcVal').value) || 0;
+    const yld = parseFloat(document.getElementById('fatSelect').value);
+    const fatName = document.getElementById('fatSelect').options[document.getElementById('fatSelect').selectedIndex].text;
+    const target = parseFloat(document.getElementById('targetMg').value) || 0;
+    const parts = parseFloat(document.getElementById('nbParts').value) || 1;
+    const liquid = parseFloat(document.getElementById('liquidQty').value) || 1;
+
+    const totalMg = target * parts;
+    const result = totalMg / (thc * 10 * (yld / 100));
+    const finalG = isFinite(result) ? result.toFixed(3) : "0";
+
+    document.getElementById('resGrammes').innerText = finalG + " g";
+    document.getElementById('ratioText').innerText = (totalMg / liquid).toFixed(1) + " mg / ml (concentration)";
+    
+    let pWidth = Math.min((target / 60) * 100, 100);
+    document.getElementById('powerBar').style.width = pWidth + "%";
+    
+    document.getElementById('decarboText').innerText = decarbData[typeVal] || decarbData["80"];
+    
+    // --- GESTION SIROP ---
+    const syrupBox = document.getElementById('syrupRecipe');
+    if(fatName.includes("Sirop")) {
+        syrupBox.style.display = "block";
+        const sugar = (liquid / 1.5).toFixed(0); 
+        const water = (liquid / 3).toFixed(0); 
+        document.getElementById('syrupText').innerHTML = `Pour obtenir ${liquid}ml : Faire chauffer <b>${sugar}g de sucre</b> dans <b>${water}ml d'eau</b>. Ajouter 1 c.à.thé de lécithine pour l'émulsion.`;
+    } else {
+        syrupBox.style.display = "none";
+    }
+
+    // --- INFUSION ---
+    let infusionMsg = "";
+    if(fatName.includes("Sirop")) {
+        infusionMsg = `Incorporer les ${finalG}g activés dans le sirop chaud avec l'émulsifiant. Maintenir à 75°C pendant 30 min en remuant constamment.`;
+    } else if(typeVal == "80") {
+        infusionMsg = `Mélanger les ${finalG}g de wax activée directement dans les ${liquid}g de ${fatName}. Remuer doucement au bain-marie (75°C) pendant 20 min jusqu'à dissolution complète.`;
+    } else if(fatName.includes("Lait") || fatName.includes("Crème")) {
+        infusionMsg = `Infuser les ${finalG}g dans les ${liquid}g de ${fatName} au bain-marie (80°C) pendant 45 min.`;
+    } else {
+        let infusionTime = yld > 80 ? "2h à 3h" : "1h";
+        infusionMsg = `Placer les ${finalG}g activés dans les ${liquid}g de ${fatName}. Infuser au bain-marie (80°C) pendant ${infusionTime}.`;
+    }
+    document.getElementById('infusionText').innerText = infusionMsg;
+
+    // --- STOCKAGE ---
+    let storageMsg = typeVal == "80" ? "Filtration souvent inutile pour les concentrés purifiés. Notez la date." : "Filtrez avec une étamine. Notez la date de fabrication.";
+    document.getElementById('storageText').innerHTML = storageMsg;
+    
+    let timeTable = "";
+    if(fatName.includes("Lait") || fatName.includes("Crème")) {
+        timeTable = `❄️ Réfrigérateur : <span>4 à 7 jours</span><br>🧊 Congélateur : <span>3 mois</span>`;
+    } else if(fatName.includes("Miel") || fatName.includes("Sirop")) {
+        timeTable = `❄️ Réfrigérateur : <span>6 mois +</span><br>🧊 Congélateur : <span>Déconseillé</span>`;
+    } else {
+        timeTable = `❄️ Réfrigérateur : <span>2 à 6 mois</span><br>🧊 Congélateur : <span>1 an +</span>`;
+    }
+    document.getElementById('storageTime').innerHTML = timeTable;
+}
+
+run();
+</script>
+
+</body>
+</html>

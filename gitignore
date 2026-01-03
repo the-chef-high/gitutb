@@ -1,0 +1,42 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log
+
+# Build / outputs
+dist/
+build/
+www/
+*.tgz
+
+# Capacitor / Native
+android/
+ios/
+.gradle/
+*.keystore
+**/build/
+**/intermediates/
+**/captures/
+
+# Electron
+dist_electron/
+release/
+*.app
+*.exe
+
+# System
+.DS_Store
+Thumbs.db
+.vscode/
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# Editor specific
+.idea/
+*.sublime-workspace
+*.sublime-project
