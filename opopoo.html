@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Master Lab High</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+<h1>🌿 Master Lab High</h1>
+
+<form id="calculatorForm">
+
+  <label>Type de matière</label>
+  <select id="matType">
+    <option value="18" data-thc="18">Fleur 18%</option>
+    <option value="25" data-thc="25">Fleur 25%</option>
+    <option value="80" data-thc="80">Wax 80%</option>
+  </select>
+
+  <label>THC (%)</label>
+  <input id="thcVal" type="number" value="18">
+
+  <label>Quantité de solvant (ml)</label>
+  <input id="liquidQty" type="number" value="250">
+
+  <label>Type de solvant</label>
+  <select id="fatSelect">
+    <option value="huile">Huile</option>
+    <option value="lait">Lait</option>
+    <option value="creme">Crème</option>
+    <option value="sirop">Sirop</option>
+    <option value="miel">Miel</option>
+  </select>
+
+  <label>Mg par portion</label>
+  <input id="targetMg" type="number" value="10">
+
+  <label>Nombre de portions</label>
+  <input id="nbParts" type="number" value="25">
+
+</form>
+
+<div id="syrupBox" class="box" style="display:none;">
+  <p id="syrupText"></p>
+</div>
+
+<div class="box">
+  <p id="infusionText"></p>
+</div>
+
+<div class="box">
+  <p id="storageText"></p>
+  <p id="storageTime"></p>
+</div>
+
+<button onclick="MasterLabHigh.reset()">🔄 Réinitialiser</button>
+
+<script src="script.js"></script>
+</body>
+</html>
